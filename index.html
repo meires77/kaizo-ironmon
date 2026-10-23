@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#11140f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IronMON">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Kaizo IronMON</title>
+<style>
+:root{color-scheme:dark;--bg:#10130f;--panel:#1a2018;--line:#34402d;--green:#b7e36b;--muted:#a9b1a0;--red:#ff8b80}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:#f5f5ed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);min-height:100vh}
+header{padding:18px 2px 12px;display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:13px;background:#26331e;display:grid;place-items:center;border:1px solid #566d3e;font-size:24px}
+h1{font-size:21px;line-height:1.1;margin:0}header p{margin:5px 0 0;color:var(--muted);font-size:12px}
+nav{display:flex;gap:8px;margin:8px 0 14px}
+nav button{flex:1;background:#20261d;border:1px solid var(--line);color:#dfe6d8;border-radius:12px;padding:11px 5px;font-weight:650}
+nav button.active{background:var(--green);color:#182012;border-color:var(--green)}
+section.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}
+h2{font-size:16px;margin:0 0 9px}p{line-height:1.45} .muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;color:#d9e0d2;margin:12px 0 6px}
+input[type=text],input[type=number],select,textarea{width:100%;border-radius:10px;border:1px solid #46523e;background:#10150e;color:#fff;padding:12px;font:inherit}
+input[type=file]{width:100%;font-size:13px;color:var(--muted);padding:10px 0}
+button.primary{background:var(--green);border:0;color:#182012;border-radius:12px;padding:13px 14px;font-weight:750;width:100%;font-size:15px}
+button.secondary{background:#252e20;border:1px solid var(--line);color:#eef4e8;border-radius:10px;padding:10px 12px;font-weight:650}
+button.danger{background:#38201d;color:#ffb8b0;border:1px solid #70413b;border-radius:10px;padding:10px 12px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+#game{width:100%;min-height:200px;border-radius:12px;overflow:hidden;background:#080a07}
+#gameWrap{display:none}
+.notice{font-size:12px;line-height:1.5;color:var(--muted);border-left:3px solid var(--green);padding-left:10px;margin-top:10px}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{padding:12px;background:#11160f;border:1px solid var(--line);border-radius:12px}
+.stat strong{display:block;font-size:22px;color:var(--green)}.stat span{font-size:12px;color:var(--muted)}
+.checkrow{display:flex;gap:9px;align-items:flex-start;margin:10px 0;font-size:14px;line-height:1.4}.checkrow input{margin-top:3px;accent-color:var(--green)}
+.hidden{display:none!important}.small{font-size:11px;color:var(--muted)}footer{text-align:center;color:#7f8976;font-size:11px;padding:10px 0 24px}
+a{color:var(--green)}.pill{display:inline-block;background:#29351f;color:var(--green);border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+<header><div class="logo">⚡</div><div><h1>Kaizo IronMON</h1><p>Pokémon Rojo Fuego · panel personal para iPhone</p></div></header>
+<nav><button class="active" data-tab="play">Jugar</button><button data-tab="run">Mi intento</button><button data-tab="rules">Reglas</button></nav>
+
+<main>
+<div id="tab-play">
+<section class="panel">
+<h2>Iniciar partida</h2>
+<p class="muted">Selecciona una ROM de Rojo Fuego compatible con tu configuración Kaizo IronMON. El archivo se carga desde tu dispositivo; esta web no incluye ROMs.</p>
+<label for="rom">Tu archivo de juego (.gba o .zip)</label>
+<input id="rom" type="file" accept=".gba,.zip,application/zip,application/octet-stream">
+<button class="primary" id="start">Cargar juego</button>
+<div id="status" class="notice">El emulador se descarga desde EmulatorJS y necesita conexión a Internet para iniciarse. Una vez cargado, el rendimiento y el guardado dependen de Safari y del dispositivo.</div>
+</section>
+<section class="panel" id="gameWrap">
+<h2>Partida</h2>
+<div id="game"></div>
+<p class="small">Consejo: gira el iPhone en horizontal para tener más espacio. Guarda también dentro del juego; no dependas solo de los estados del emulador.</p>
+</section>
+<section class="panel">
+<h2>Tu progreso</h2>
+<div class="statgrid">
+<div class="stat"><strong id="attemptCount">0</strong><span>Intentos registrados</span></div>
+<div class="stat"><strong id="bestStage">—</strong><span>Mejor progreso</span></div>
+</div>
+<p class="muted">El registro se guarda localmente en este navegador. No modifica ni verifica automáticamente las reglas dentro de la ROM.</p>
+</section>
+</div>
+
+<div id="tab-run" class="hidden">
+<section class="panel">
+<h2>Registrar intento</h2>
+<label for="stage">Progreso / último hito</label>
+<select id="stage">
+<option value="Inicio">Inicio / elección del inicial</option><option value="Primer gimnasio">Primer gimnasio</option><option value="Segundo gimnasio">Segundo gimnasio</option><option value="Tercer gimnasio">Tercer gimnasio</option><option value="Cuarto gimnasio">Cuarto gimnasio</option><option value="Quinto gimnasio">Quinto gimnasio</option><option value="Sexto gimnasio">Sexto gimnasio</option><option value="Séptimo gimnasio">Séptimo gimnasio</option><option value="Octavo gimnasio">Octavo gimnasio</option><option value="Liga Pokémon">Liga Pokémon</option><option value="Campeón">Campeón</option>
+</select>
+<label for="pokemon">Pokémon principal / notas</label><input id="pokemon" type="text" placeholder="Ej. inicial, habilidad, movimiento clave">
+<label for="notes">Notas del intento</label><textarea id="notes" rows="3" placeholder="Qué salió bien, causa de la derrota, etc."></textarea>
+<div class="row" style="margin-top:12px"><button class="primary" id="saveRun">Guardar progreso</button><button class="danger" id="newAttempt">Nuevo intento</button></div>
+</section>
+<section class="panel"><h2>Historial</h2><div id="history" class="muted">Todavía no hay intentos guardados.</div><button class="secondary" id="export" style="margin-top:12px;width:100%">Exportar registro (.json)</button></section>
+</div>
+
+<div id="tab-rules" class="hidden">
+<section class="panel">
+<h2>Lista personal de reglas</h2>
+<p class="muted">Lista de referencia editable. El reglamento exacto depende de la versión de Kaizo IronMON que hayas elegido; confirma los detalles con su reglamento oficial antes de empezar.</p>
+<div id="checks">
+<label class="checkrow"><input type="checkbox" data-rule="ROM preparada con la aleatorización requerida">ROM preparada con la aleatorización requerida</label>
+<label class="checkrow"><input type="checkbox" data-rule="Reglas de captura y sustitución revisadas">Reglas de captura y sustitución revisadas</label>
+<label class="checkrow"><input type="checkbox" data-rule="Restricciones de curación y objetos revisadas">Restricciones de curación y objetos revisadas</label>
+<label class="checkrow"><input type="checkbox" data-rule="Reglas de experiencia y niveles revisadas">Reglas de experiencia y niveles revisadas</label>
+<label class="checkrow"><input type="checkbox" data-rule="Muerte permanente activada como regla del reto">Muerte permanente activada como regla del reto</label>
+<label class="checkrow"><input type="checkbox" data-rule="Condición de victoria y límites revisados">Condición de victoria y límites revisados</label>
+</div>
+<p class="notice">Esta lista solo sirve como recordatorio: no aplica reglas automáticamente ni cambia la dificultad del juego.</p>
+</section>
+<section class="panel">
+<h2>Instalar en pantalla de inicio</h2>
+<ol class="muted"><li>Publica esta carpeta en un alojamiento HTTPS.</li><li>Abre la dirección en Safari.</li><li>Pulsa Compartir → Añadir a pantalla de inicio.</li><li>Activa «Abrir como app» si aparece esa opción y pulsa Añadir.</li></ol>
+</section>
+</div>
+</main>
+<footer>Proyecto personal no oficial. Pokémon es una marca de Nintendo / The Pokémon Company. No incluye ROMs ni está afiliado a sus titulares.</footer>
+<script>
+const $=s=>document.querySelector(s);
+const storeKey='kaizoIronmonTrackerV1';
+let data={attempts:[],best:'—',checks:{}};
+try{data={...data,...JSON.parse(localStorage.getItem(storeKey)||'{}')}}catch(e){}
+function persist(){localStorage.setItem(storeKey,JSON.stringify(data));render()}
+function render(){
+ $('#attemptCount').textContent=data.attempts.length;
+ $('#bestStage').textContent=data.best||'—';
+ $('#history').innerHTML=data.attempts.length?data.attempts.slice().reverse().map((a,i)=>`<div style="padding:10px 0;border-bottom:1px solid #34402d"><b>${escapeHtml(a.stage)}</b> <span class="small">· ${escapeHtml(a.date)}</span><div class="muted">${escapeHtml(a.pokemon||'Sin Pokémon anotado')}</div><div class="small">${escapeHtml(a.notes||'')}</div></div>`).join(''):'Todavía no hay intentos guardados.';
+ document.querySelectorAll('[data-rule]').forEach(c=>c.checked=!!data.checks[c.dataset.rule]);
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b));
+ ['play','run','rules'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',t!==b.dataset.tab));
+}));
+$('#saveRun').addEventListener('click',()=>{
+ const stage=$('#stage').value;
+ data.attempts.push({stage,pokemon:$('#pokemon').value.trim(),notes:$('#notes').value.trim(),date:new Date().toLocaleDateString('es-ES')});
+ const stages=['Inicio','Primer gimnasio','Segundo gimnasio','Tercer gimnasio','Cuarto gimnasio','Quinto gimnasio','Sexto gimnasio','Séptimo gimnasio','Octavo gimnasio','Liga Pokémon','Campeón'];
+ if(stages.indexOf(stage)>stages.indexOf(data.best)) data.best=stage;
+ persist(); $('#notes').value=''; alert('Progreso guardado en este navegador.');
+});
+$('#newAttempt').addEventListener('click',()=>{
+ if(!confirm('¿Registrar un nuevo intento? El historial anterior se conservará.'))return;
+ data.attempts.push({stage:'Inicio',pokemon:'',notes:'Nuevo intento iniciado',date:new Date().toLocaleDateString('es-ES')});persist();
+});
+document.querySelectorAll('[data-rule]').forEach(c=>c.addEventListener('change',()=>{data.checks[c.dataset.rule]=c.checked;localStorage.setItem(storeKey,JSON.stringify(data))}));
+$('#export').addEventListener('click',()=>{
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='kaizo-ironmon-registro.json';a.click();URL.revokeObjectURL(url);
+});
+$('#start').addEventListener('click',()=>{
+ const file=$('#rom').files[0];
+ if(!file){alert('Primero selecciona un archivo .gba o .zip.');return}
+ if(!/\.(gba|zip)$/i.test(file.name)){alert('Selecciona un archivo .gba o .zip.');return}
+ $('#status').textContent='Preparando el emulador… No cierres esta pestaña mientras carga.';
+ $('#gameWrap').style.display='block';
+ $('#game').innerHTML='';
+ // EmulatorJS accepts a URL; a local object URL keeps the selected ROM on this device.
+ const romURL=URL.createObjectURL(file);
+ window.EJS_player='#game';
+ window.EJS_core='gba';
+ window.EJS_gameUrl=romURL;
+ window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
+ window.EJS_gameName='Pokémon Rojo Fuego — Kaizo IronMON';
+ window.EJS_color='#b7e36b';
+ window.EJS_startOnLoaded=true;
+ window.EJS_defaultOptions={'save-state-location':'browser'};
+ const old=document.getElementById('emulatorLoader');if(old)old.remove();
+ const script=document.createElement('script');script.id='emulatorLoader';script.src=window.EJS_pathtodata+'loader.js';
+ script.onload=()=>{$('#status').textContent='Emulador cargado. Si el juego no arranca, prueba una ROM .gba válida y comprueba tu conexión.'};
+ script.onerror=()=>{$('#status').textContent='No se pudo cargar EmulatorJS. Comprueba la conexión e inténtalo de nuevo.'};
+ document.body.appendChild(script);
+});
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>

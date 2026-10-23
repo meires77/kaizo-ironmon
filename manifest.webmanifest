@@ -1,0 +1,17 @@
+{
+  "name": "Kaizo IronMON",
+  "short_name": "IronMON",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#10130f",
+  "theme_color": "#11140f",
+  "description": "Panel personal y lanzador de Pokémon Rojo Fuego Kaizo IronMON.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
